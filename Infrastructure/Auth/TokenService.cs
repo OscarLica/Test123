@@ -49,6 +49,8 @@ namespace MultiTenant.Infrastructure.Auth
         private async Task<TokenResponse> GenerateToken(UserDetailsDto user, string organizationName)
         {
             var token = new JwtSecurityToken(
+                issuer: "https://localhost:7112/",
+                audience: "https://localhost:7112/",
                 claims: GetClaims(user, organizationName),
                 expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
                 signingCredentials: GetSigningCredentials());

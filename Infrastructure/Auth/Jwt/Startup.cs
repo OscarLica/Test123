@@ -27,37 +27,13 @@ namespace Infrastructure.Auth.Jwt
                     bearer.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Key)),
-                        ValidateAudience = false,
-                        ValidateIssuer = false,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+                        ValidateAudience = true,
+                        ValidateIssuer = true,
+                        ValidIssuer = "https://localhost:7112/",
+                        ValidAudience = "https://localhost:7112/"
                     };
-                    bearer.Events = new JwtBearerEvents
-                    {
-                        OnChallenge = context =>
-                        {
-                            context.HandleResponse();
-                            if (!context.Response.HasStarted)
-                            {
-                                throw new UnauthorizedException("Authentication Failed.");
-                            }
-
-                            return Task.CompletedTask;
-                        },
-                        OnForbidden = _ => throw new ForbiddenException("You are not authorized to access this resource."),
-                        OnMessageReceived = context =>
-                        {
-                            var accessToken = context.Request.Query["access_t0ken"];
-
-                            if (!string.IsNullOrEmpty(accessToken) &&
-                                context.HttpContext.Request.Path.StartsWithSegments("/notifications"))
-                            {
-                                // Read the token out of the query string
-                                context.Token = accessToken;
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    };
+                    
                 })
                 .Services;
         }
